@@ -3,7 +3,6 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
-const { doesNotMatch } = require("assert");
 
 let getObject = (req, res) => {
   console.log("Request is", req.params.repo, req.params.oid);
