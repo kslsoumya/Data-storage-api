@@ -46,36 +46,38 @@ let saveObject = (req, res) => {
     2
   )}`;
   console.log("Path of the object", objectLoc);
-  fs.mkdir(path.dirname(objectLoc), (err) => {
-    if (err) {
-      console.log("Already exists");
-      let message = "File already exists";
-      res.status(500).send({ message });
-      return;
-    }
-    zlib.deflate(data, (err, compressedData) => {
-      if (!err) {
-        let cData = compressedData;
-        console.log("zlib data ", cData);
+  try {
+    fs.mkdirSync(path.dirname(objectLoc));
+  } catch (err) {
+    console.log("Already exists");
+    let message = "File already exists";
+    res.status(500).send({ message });
+    return;
+  }
 
-        fs.writeFile(objectLoc, cData, function (err) {
-          if (err) {
-            console.log(err);
-            let message = "Internal server error occured";
-            res.status(500).send({ message });
-            return;
-          }
-          console.log("saved");
-          let respObj = { oid: `${sha1Code}`, size: `${data}`.length };
-          res.status(201).send(respObj);
-        });
-      } else {
-        console.log("Error in zlib compression.");
-        let message = "Internal server error occured";
-        res.status(500).send({ message });
-      }
-    });
+  zlib.deflate(data, (err, compressedData) => {
+    if (!err) {
+      let cData = compressedData;
+      console.log("zlib data ", cData);
+
+      fs.writeFile(objectLoc, cData, function (err) {
+        if (err) {
+          console.log(err);
+          let message = "Internal server error occured";
+          res.status(500).send({ message });
+          return;
+        }
+        console.log("saved");
+        let respObj = { oid: `${sha1Code}`, size: `${data}`.length };
+        res.status(201).send(respObj);
+      });
+    } else {
+      console.log("Error in zlib compression.");
+      let message = "Internal server error occured";
+      res.status(500).send({ message });
+    }
   });
+  //   });
 };
 
 let deleteObject = (req, res) => {
