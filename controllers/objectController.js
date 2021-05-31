@@ -14,8 +14,8 @@ let getObject = (req, res) => {
       if (err) {
         console.log(err);
         res.status(404);
-        let msg = "Not found";
-        res.send({ msg });
+        let message = "Not found";
+        res.send({ message });
         return;
       }
       console.log(data);
@@ -49,8 +49,8 @@ let saveObject = (req, res) => {
   fs.mkdir(path.dirname(objectLoc), (err) => {
     if (err) {
       console.log("Already exists");
-      let msg = "File already exists";
-      res.status(500).send({ msg });
+      let message = "File already exists";
+      res.status(500).send({ message });
       return;
     }
     zlib.deflate(data, (err, compressedData) => {
@@ -61,8 +61,8 @@ let saveObject = (req, res) => {
         fs.writeFile(objectLoc, cData, function (err) {
           if (err) {
             console.log(err);
-            let msg = "Internal server error occured";
-            res.status(500).send({ msg });
+            let message = "Internal server error occured";
+            res.status(500).send({ message });
             return;
           }
           console.log("saved");
@@ -71,14 +71,28 @@ let saveObject = (req, res) => {
         });
       } else {
         console.log("Error in zlib compression.");
-        let msg = "Internal server error occured";
-        res.status(500).send({ msg });
+        let message = "Internal server error occured";
+        res.status(500).send({ message });
       }
     });
   });
 };
 
-let deleteObject = (req, res) => {};
+let deleteObject = (req, res) => {
+  console.log("Request is", req.params.repo, req.params.oid);
+  const repo = req.params.repo;
+  const oid = req.params.oid;
+  fs.unlink(`.git/objects/${oid.substring(0, 2)}/${oid.substr(2)}`, (err) => {
+    let message;
+    if (err) {
+      message = "Deleted Successfully";
+      res.status(404).send({ message });
+      return;
+    }
+    message = "Deleted Successfully";
+    res.status(200).send({ message });
+  });
+};
 
 module.exports = {
   getObject,
