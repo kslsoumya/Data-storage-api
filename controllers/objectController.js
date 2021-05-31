@@ -5,7 +5,28 @@ const path = require("path");
 const zlib = require("zlib");
 const { doesNotMatch } = require("assert");
 
-let getObject = (req, res) => {};
+let getObject = (req, res) => {
+  console.log("Request is", req.params.repo, req.params.oid);
+  const oid = req.params.oid;
+  fs.readFile(
+    `.git/objects/${oid.substring(0, 2)}/${oid.substr(2)}`,
+    (err, data) => {
+      if (err) {
+        console.log(err);
+        res.status(404);
+        let msg = "Not found";
+        res.send({ msg });
+        return;
+      }
+      console.log(data);
+      console.log("Content is-----", data);
+      const content = zlib.inflateSync(Buffer.from(data));
+      console.log("Content received", content.toString());
+      const response = content.toString().split("\0")[1];
+      res.status(200).send(response);
+    }
+  );
+};
 
 let saveObject = (req, res) => {
   // request params
