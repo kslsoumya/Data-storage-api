@@ -2,7 +2,7 @@ name: CI
 ​
 on:
     push:
-        branches: [ master ]
+        branches: [ feature/object-services ]
     
 jobs:
     deploy:
